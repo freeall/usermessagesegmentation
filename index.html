@@ -1,0 +1,222 @@
+<!doctype html>
+<html>
+	<head>
+		<title></title>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+
+		<!-- http://getbootstrap.com -->
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
+		<!-- http://momentjs.com -->
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
+
+		<!-- https://github.com/dangrossman/bootstrap-daterangepicker -->
+		<link rel="stylesheet" href="daterangepicker-bs3.css">
+		<script src="daterangepicker.js"></script>
+
+		<!-- https://github.com/visionmedia/superagent -->
+		<script src="superagent.js"></script>
+
+		<style type="text/css">
+			body {
+				margin: 10px;
+			}
+			.right {
+				float: right;
+			}
+			.left {
+				float: left;
+			}
+			.clear {
+				clear: both;
+			}
+			.wrapper {
+				margin-left: auto;
+				margin-right: auto;
+				width: 425px;
+			}
+			.conditions {
+				margin-bottom: 10px;
+			}
+			.condition {
+				margin: 5px 0;
+			}
+			.condition .remove {
+				position: absolute;
+				margin-top: -2px;
+				margin-left: -15px;
+				width: 15px;
+			}
+			.condition > .remove {
+				display: none;
+			}
+			.condition:hover > .remove {
+				display: block;
+			}
+			.not-first {
+				display: none;
+			}
+			.condition-posting input {
+				height: inherit;
+				padding: 0;
+				margin-top: -1px;
+				width: 50px;
+				text-align: center;
+			}
+			.buttons {
+				margin-top: 30px;
+			}
+			.buttons .test {
+				margin-right: 10px;
+			}
+			/*.not-first:first-of-type span {
+				display: block
+			}*/
+		</style>
+		<script type="text/template" class="template-module">
+			<div class="condition condition-module">
+				<button type="button" class="close remove">&times;</button>
+				<span class="left not-first">and&nbsp;</span>
+				<div class="dropdown dropdown-selector left">
+					<a class="dropdown-selected" data-toggle="dropdown" href="#">with</a>
+					<ul class="dropdown-menu dropdown-text-select" role="menu">
+						<li><a href="#">with</a></li>
+						<li><a href="#">without</a></li>
+					</ul>
+				</div>
+				<span class="left">&nbsp;the&nbsp;</span>
+				<div class="dropdown dropdown-selector left">
+					<a class="dropdown-selected" data-toggle="dropdown" href="#">inventory</a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#">inventory</a></li>
+						<li><a href="#">scanning</a></li>
+						<li><a href="#">project</a></li>
+					</ul>
+				</div>
+				<span class="left">&nbsp;module</span>
+				<div class="clear"></div>
+			</div>
+		</script>
+		<script type="text/template" class="template-posting">
+			<div class="condition condition-posting">
+				<button type="button" class="close remove">&times;</button>
+				<span class="left not-first">and&nbsp;</span>
+				<span class="left">with&nbsp;</span>
+				<div class="dropdown dropdown-selector left">
+					<a class="dropdown-selected" data-toggle="dropdown" href="#">more than</a>
+					<ul class="dropdown-menu dropdown-text-select" role="menu">
+						<li><a href="#">more than</a></li>
+						<li><a href="#">less than</a></li>
+					</ul>
+				</div>
+				<span class="left">&nbsp;</span>
+				<input class="left form-control" value="100">
+				<span class="left">&nbsp;postings</span>
+				<div class="clear"></div>
+			</div>
+		</script>
+	</head>
+	<body>
+		<div class="wrapper">
+			<h2>New message</h2>
+			<div class="well">
+				<input class="form-control title" placeholder="Title"><br>
+				<textarea class="form-control" placeholder="Text"></textarea><br>
+				<div class="input-group">
+					<span class="input-group-addon">Display period</span>
+					<input type="text" name="reservation" class="display-period form-control" />
+				</div>
+				<br>
+				<div class="conditions">
+					<div class="left">This message is sent to&nbsp;</div>
+					<div class="dropdown dropdown-selector left">
+						<a class="dropdown-selected" data-toggle="dropdown" href="#">all users</a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="#">all users</a></li>
+							<li><a href="#">admins</a></li>
+						</ul>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<div class="dropdown add-condition">
+					<a class="dropdown-selected" data-toggle="dropdown" href="#">Add condition</a>
+					<ul class="dropdown-menu" role="menu">
+						<li><a href="#" name="modules">Modules</a></li>
+						<li><a href="#" name="postings">Postings</a></li>
+					</ul>
+				</div>
+
+				<div class="buttons">
+					<button type="button" class="right btn btn-default publish">Publish</button>
+					<button type="button" class="right btn btn-default test">Test page</button>
+				</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+
+		<script type="text/javascript">
+			var FORMAT = 'MM/DD/YYYY HH:mm';
+			var request = superagent;
+
+			$('.buttons .test').on('click', function() {
+				request.get('http://dmz/gitmain/WebServices/SysMessageService.asmx/Get').query({
+					sysMessageId: 2
+				}).end(function() {
+					console.log(arguments);
+				});
+				// var data = {
+				// 	templateRows: rowData,
+				// 	distributionAmount: getAmountFromAppletValue()
+				// };
+				// var postOptions = {
+				// 	data: JSON.stringify(data),
+				// 	url: Econ.applicationUrl('/WebServices/FormService.asmx/ApplyTemplate'),
+				// 	contentType: 'application/json;charset=utf-8',
+				// 	dataType: 'json',
+				// 	callback: function(result, responseStatus, response) {
+						
+				// 	}
+				// };
+				// Econ.postAjaxData(postOptions);
+			});
+
+			// Main condition dropdown
+			$('.add-condition [name=modules]').on('click', function() {
+				$('.conditions').append($('.template-module').html());
+			});
+			$('.add-condition [name=postings]').on('click', function() {
+				$('.conditions').append($('.template-posting').html());
+			});
+
+			$('body').on('click', '.dropdown-selector .dropdown-menu a', function() {
+				$('.dropdown-selected', $(this).closest('.dropdown-selector')).text($(this).text());
+			});
+
+			// Remove condition
+			$('body').on('click', '.condition .remove', function() {
+				$(this).closest('.condition').remove();
+			});
+
+			// Date range selector
+			$('.display-period')
+				.daterangepicker({
+					ranges: {
+						'7 Days': [moment().minutes(0), moment().add('days', 7).minutes(0)],
+						'30 Days': [moment().minutes(0), moment().add('days', 30).minutes(0)],
+					},
+					timePicker: true,
+					timePickerIncrement: 15,
+					timePicker12Hour: false,
+					startDate: moment().minutes(0),
+					endDate: moment().add('days', 7).minutes(0),
+					format: FORMAT
+				})
+				.val(moment().minutes(0).format(FORMAT) + ' - ' + moment().add('days', 7).minutes(0).format(FORMAT));
+
+			// Bootstrap
+			$('.title').focus();
+		</script>
+	</body>
+</html>
