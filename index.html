@@ -22,6 +22,9 @@
 		<style type="text/css">
 			body {
 				margin: 10px;
+				font-family: verdana, sans-serif;
+				font-size: 12px;
+				color: #3a536c;
 			}
 			.right {
 				float: right;
@@ -35,7 +38,7 @@
 			.wrapper {
 				margin-left: auto;
 				margin-right: auto;
-				width: 425px;
+				width: 435px;
 			}
 			.conditions {
 				margin-bottom: 10px;
@@ -45,9 +48,9 @@
 			}
 			.condition .remove {
 				position: absolute;
-				margin-top: -2px;
-				margin-left: -15px;
-				width: 15px;
+				margin-top: -11px;
+				margin-left: -18px;
+				width: 18px;
 			}
 			.condition > .remove {
 				display: none;
@@ -58,7 +61,8 @@
 			.not-first {
 				display: none;
 			}
-			.condition-posting input {
+			.condition-journalentries input,
+			.condition-sentinvoices input {
 				height: inherit;
 				padding: 0;
 				margin-top: -1px;
@@ -71,15 +75,81 @@
 			.buttons .test {
 				margin-right: 10px;
 			}
+			#preview .modal-dialog {
+				margin-top: 20%;
+				width: 300px;
+				padding: 20px;
+				background-color: white;
+			}
+			#preview .close-modal {
+				color: #6e7c84;
+			}
+			#preview .title {
+				padding-top: 0;
+				text-align: center;
+				color: #97b3c9;
+			}
 			/*.not-first:first-of-type span {
 				display: block
 			}*/
+
+			/* Overriding Twitter Bootstrap */
+			.btn {
+				-webkit-user-select: none !important;
+				cursor: pointer !important;
+				border-radius: 2px !important;
+				padding: 1px !important;
+				margin: 0 0 0 5px !important;
+				display: inline-block !important;
+				line-height: normal !important;
+				font: inherit !important;
+				border: 1px solid #ccc !important;
+				background: none !important;
+				background-color: #fbfbfb !important;
+				font-size: 13px !important;
+				padding: 3px 12px !important;
+			}
+			.well {
+				background-image: none;
+				background-color: white;
+			}
+			.dropdown-menu>li>a:hover {
+				background-image: none !important;
+				background-color: rgb(245, 245, 245) !important;
+				color: black !important;
+			}
+			input,
+			textarea,
+			.input-group-addon {
+				border-radius: 2px !important;
+				border-color: #cacaca !important;
+				color: black !important;
+				font-size: 12px !important;
+			}
+			input:focus,
+			textarea:focus {
+				-webkit-box-shadow: none !important;
+				box-shadow: none !important;
+				border-color: #0271d1 !important;
+				background-color: #ebfbfc !important;
+			}
+			h2 {
+				margin: 5px 0 !important;
+				font-size: 20px !important;
+			}
+			h3 {
+				margin: 5px 0 !important;
+				font-size: 12px !important;
+			}
+			button {
+				height: 34px !important;
+			}
 		</style>
-		<script type="text/template" class="template-module">
+		<script type="text/template" class="template-modules">
 			<div class="condition condition-module">
 				<button type="button" class="close remove">&times;</button>
 				<span class="left not-first">and&nbsp;</span>
-				<div class="dropdown dropdown-selector left">
+				<div class="dropdown dropdown-with dropdown-selector left">
 					<a class="dropdown-selected" data-toggle="dropdown" href="#">with</a>
 					<ul class="dropdown-menu dropdown-text-select" role="menu">
 						<li><a href="#">with</a></li>
@@ -87,20 +157,24 @@
 					</ul>
 				</div>
 				<span class="left">&nbsp;the&nbsp;</span>
-				<div class="dropdown dropdown-selector left">
-					<a class="dropdown-selected" data-toggle="dropdown" href="#">inventory</a>
+				<div class="dropdown dropdown-moduletype dropdown-selector left">
+					<a class="dropdown-selected" data-toggle="dropdown" href="#">Scanning</a>
 					<ul class="dropdown-menu" role="menu">
-						<li><a href="#">inventory</a></li>
-						<li><a href="#">scanning</a></li>
-						<li><a href="#">project</a></li>
+						<li><a href="#">Scanning</a></li>
+						<li><a href="#">Project</a></li>
+						<li><a href="#">Dimension</a></li>
+						<li><a href="#">Stock</a></li>
+						<li><a href="#">Subscription</a></li>
+						<li><a href="#">Accruals</a></li>
+						<li><a href="#">Assets</a></li>
 					</ul>
 				</div>
 				<span class="left">&nbsp;module</span>
 				<div class="clear"></div>
 			</div>
 		</script>
-		<script type="text/template" class="template-posting">
-			<div class="condition condition-posting">
+		<script type="text/template" class="template-journalentries">
+			<div class="condition condition-journalentries">
 				<button type="button" class="close remove">&times;</button>
 				<span class="left not-first">and&nbsp;</span>
 				<span class="left">with&nbsp;</span>
@@ -113,17 +187,37 @@
 				</div>
 				<span class="left">&nbsp;</span>
 				<input class="left form-control" value="100">
-				<span class="left">&nbsp;postings</span>
+				<span class="left">&nbsp;journal entries</span>
+				<div class="clear"></div>
+			</div>
+		</script>
+		<script type="text/template" class="template-sentinvoices">
+			<div class="condition condition-sentinvoices">
+				<button type="button" class="close remove">&times;</button>
+				<span class="left not-first">and&nbsp;</span>
+				<span class="left">with&nbsp;</span>
+				<div class="dropdown dropdown-selector left">
+					<a class="dropdown-selected" data-toggle="dropdown" href="#">more than</a>
+					<ul class="dropdown-menu dropdown-text-select" role="menu">
+						<li><a href="#">more than</a></li>
+						<li><a href="#">less than</a></li>
+					</ul>
+				</div>
+				<span class="left">&nbsp;</span>
+				<input class="left form-control" value="20">
+				<span class="left">&nbsp;sent invoices</span>
 				<div class="clear"></div>
 			</div>
 		</script>
 	</head>
 	<body>
 		<div class="wrapper">
-			<h2>New message</h2>
 			<div class="well">
-				<input class="form-control title" placeholder="Title"><br>
-				<textarea class="form-control" placeholder="Text"></textarea><br>
+				<h2>Message content</h2>
+				<h3>Headline</h3>
+				<input class="form-control title"><br>
+				<h3>Message</h3>
+				<textarea class="form-control text"></textarea><br>
 				<div class="input-group">
 					<span class="input-group-addon">Display period</span>
 					<input type="text" name="reservation" class="display-period form-control" />
@@ -131,11 +225,13 @@
 				<br>
 				<div class="conditions">
 					<div class="left">This message is sent to&nbsp;</div>
-					<div class="dropdown dropdown-selector left">
-						<a class="dropdown-selected" data-toggle="dropdown" href="#">all users</a>
+					<div class="dropdown dropdown-usertype dropdown-selector left">
+						<a class="dropdown-selected" data-toggle="dropdown" href="#">AllUsers</a>
 						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">all users</a></li>
-							<li><a href="#">admins</a></li>
+							<li><a href="#">AllUsers</a></li>
+							<li><a href="#">AllAdministrators</a></li>
+							<li><a href="#">ProAdminAdministrators</a></li>
+							<li><a href="#">InternLicenses</a></li>
 						</ul>
 					</div>
 					<div class="clear"></div>
@@ -144,7 +240,8 @@
 					<a class="dropdown-selected" data-toggle="dropdown" href="#">Add condition</a>
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="#" name="modules">Modules</a></li>
-						<li><a href="#" name="postings">Postings</a></li>
+						<li><a href="#" name="journalentries">Journal entries</a></li>
+						<li><a href="#" name="sentinvoices">Sent invoices</a></li>
 					</ul>
 				</div>
 
@@ -156,67 +253,163 @@
 			</div>
 		</div>
 
-		<script type="text/javascript">
-			var FORMAT = 'MM/DD/YYYY HH:mm';
-			var request = superagent;
+		<div class="modal fade" id="preview" tabindex="-1" role="dialog" aria-hidden="true">
+			<div class="modal-dialog">
+				<h2 class="title">Notice</h2>
+				<p class="text">
+					foo bar baz
+				</p>
+				<button type="button" class="close-modal right btn btn-default" data-dismiss="modal">Close</button>
+				<div class="clear"></div>
+			</div>
+		</div>
 
-			$('.buttons .test').on('click', function() {
-				request.get('http://dmz/gitmain/WebServices/SysMessageService.asmx/Get').query({
-					sysMessageId: 2
-				}).end(function() {
+		<script type="text/javascript">
+			var request = superagent;
+			var param = function(name) {
+				return decodeURI((RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]);
+			};
+
+			var FORMAT = 'MM/DD/YYYY HH:mm';
+			var ID = param('id');
+			var USERTYPE_TO_INT = {
+				AllUsers: 1,
+				AllAdministrators: 2,
+				ProAdminAdministrators: 3,
+				InternLicenses: 4
+			};
+			var INT_TO_USERTYPE = {
+				 1: 'AllUsers',
+				 2: 'AllAdministrators',
+				 3: 'ProAdminAdministrators',
+				 4: 'InternLicenses'
+			};
+			var INT_TO_MODULETYPE = {
+				3: 'Scanning',
+				4: 'Project',
+				14: 'Dimension',
+				15: 'Stock',
+				20: 'Subscription',
+				27: 'Accruals',
+				29: 'Assets',
+			};
+			var MODULETYPE_TO_INT = {
+				Scanning: 3,
+				Project: 4,
+				Dimension: 14,
+				Stock: 15,
+				Subscription: 20,
+				Accruals: 27,
+				Assets: 29
+			};
+		</script>
+		<script type="text/javascript">
+			var globalDateState = {};
+			var setDateTime = function(dateFrom, dateTo) {
+				globalDateState.dateFrom = dateFrom;
+				globalDateState.dateTo = dateTo;
+
+				$('.display-period')
+					.val(moment(dateFrom).format(FORMAT) + ' - ' + moment(dateTo).format(FORMAT))
+					.daterangepicker({
+						ranges: {
+							'7 Days': [moment().minutes(0), moment().add('days', 7).minutes(0)],
+							'30 Days': [moment().minutes(0), moment().add('days', 30).minutes(0)],
+						},
+						timePicker: true,
+						timePickerIncrement: 15,
+						timePicker12Hour: false,
+						startDate: moment(dateFrom),
+						endDate: moment(dateTo),
+						format: FORMAT
+					}, function(start, end) {
+						globalDateState.dateFrom = start.format('X')+'000';
+						globalDateState.dateTo = end.format('X')+'000';
+					});
+			};
+
+			var loadUser = function(id) {
+				request.post('http://dmz/gitmain/WebServices/SysMessageService.asmx/Get').send({
+					sysMessageId: id
+				}).end(function(body) {
+					var data = JSON.parse(body.text).d;
+					$('input.title').val(data.Heading);
+					$('textarea.text').html(data.Message);
+					setDateTime(data.DateFrom, data.DateTo);
+					$('.dropdown-usertype .dropdown-selected').text(INT_TO_USERTYPE[data.CustomerSegment]);
+					data.EntryCondition.forEach(function(EntryCondition) {
+						var $html = $($('.template-journalentries').html());
+						$('.dropdown-selected', $html).text(EntryCondition.MoreThan ? 'more than' : 'less than');
+						$('input', $html).val(EntryCondition.ConditionAmount);
+						$('.conditions').append($html);
+					});
+					data.ModuleCondition.forEach(function(ModuleCondition) {
+						var $html = $($('.template-modules').html());
+						$('.dropdown-with', $html).text(ModuleCondition.With ? 'with' : 'without');
+						$('.dropdown-moduletype', $html).text(INT_TO_MODULETYPE[ModuleCondition.ConditionModule])
+						$('.conditions').append($html);
+					});
+					setTimeout(function() {
+						saveUser(id);
+					}, 100);
+				});
+			};
+			var saveUser = function(id) {
+				var res = {};
+				res.ID = id;
+				res.Heading = $('input.title').val();
+				res.Message = $('textarea.text').val();
+				res.DateFrom = moment(globalDateState.dateFrom).format();
+				res.DateTo = moment(globalDateState.dateTo).format();
+				res.CustomerSegment = USERTYPE_TO_INT[$('.dropdown-usertype .dropdown-selected').text()];
+
+				res.EntryCondition = [];
+				res.ModuleCondition = [];
+				$('.condition-journalentries').each(function(_, entry) {
+					var $entry = $(entry);
+					$('.dropdown-selector', $entry)
+					// console.log(entry);
+				});
+				res.Priority = 1001;
+				res.__type = 'Economic.FormService.DTO.SysMessageSegmentedDto';
+				request.post('http://dmz/gitmain/WebServices/SysMessageService.asmx/Save').send({sysMessage:res}).end(function() {
 					console.log(arguments);
 				});
-				// var data = {
-				// 	templateRows: rowData,
-				// 	distributionAmount: getAmountFromAppletValue()
-				// };
-				// var postOptions = {
-				// 	data: JSON.stringify(data),
-				// 	url: Econ.applicationUrl('/WebServices/FormService.asmx/ApplyTemplate'),
-				// 	contentType: 'application/json;charset=utf-8',
-				// 	dataType: 'json',
-				// 	callback: function(result, responseStatus, response) {
-						
-				// 	}
-				// };
-				// Econ.postAjaxData(postOptions);
-			});
+			};
+		</script>
+		<script type="text/javascript">
+			$(function() {
+				// Preview
+				$('.buttons .test').on('click', function() {
+					$('#preview .title').text($('input.title').val());
+					$('#preview .text').html($('textarea.text').val().replace(/\n/g, '<br>'));
+					$('#preview').modal();
+				});
 
-			// Main condition dropdown
-			$('.add-condition [name=modules]').on('click', function() {
-				$('.conditions').append($('.template-module').html());
-			});
-			$('.add-condition [name=postings]').on('click', function() {
-				$('.conditions').append($('.template-posting').html());
-			});
+				// Add condition dropdown
+				$('.add-condition .dropdown-menu a').on('click', function() {
+					var name = $(this).attr('name');
+					$('.conditions').append($('.template-'+name).html());
+				});
 
-			$('body').on('click', '.dropdown-selector .dropdown-menu a', function() {
-				$('.dropdown-selected', $(this).closest('.dropdown-selector')).text($(this).text());
+				// Remove condition
+				$('body').on('click', '.condition .remove', function() {
+					$(this).closest('.condition').remove();
+				});
+
+				// Handle select dropdowns
+				$('body').on('click', '.dropdown-selector .dropdown-menu a', function() {
+					$('.dropdown-selected', $(this).closest('.dropdown-selector')).text($(this).text());
+				});
+
+				if (ID && ID !== 'null') return loadUser(ID);
+
+				// Date range selector
+				setDateTime(moment().minutes(0), moment().add('days', 7).minutes(0));
+
+				// Init
+				$('.title').focus();
 			});
-
-			// Remove condition
-			$('body').on('click', '.condition .remove', function() {
-				$(this).closest('.condition').remove();
-			});
-
-			// Date range selector
-			$('.display-period')
-				.daterangepicker({
-					ranges: {
-						'7 Days': [moment().minutes(0), moment().add('days', 7).minutes(0)],
-						'30 Days': [moment().minutes(0), moment().add('days', 30).minutes(0)],
-					},
-					timePicker: true,
-					timePickerIncrement: 15,
-					timePicker12Hour: false,
-					startDate: moment().minutes(0),
-					endDate: moment().add('days', 7).minutes(0),
-					format: FORMAT
-				})
-				.val(moment().minutes(0).format(FORMAT) + ' - ' + moment().add('days', 7).minutes(0).format(FORMAT));
-
-			// Bootstrap
-			$('.title').focus();
 		</script>
 	</body>
 </html>
