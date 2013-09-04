@@ -259,6 +259,7 @@
 			</div>
 		</div>
 
+		<div class="btn btn-default close-window hidden">Close</div>
 		<div class="modal fade" id="preview" tabindex="-1" role="dialog" aria-hidden="true">
 			<div class="modal-dialog">
 				<h2 class="title">Notice</h2>
@@ -363,7 +364,7 @@
 			var saveUser = function(id) {
 				var res = {};
 				res.__type = 'Economic.FormService.DTO.SysMessageSegmentedDto';
-				res.ID = id;
+				if (id) res.ID = id;
 				res.Heading = $('input.title').val();
 				res.Message = $('textarea.text').val();
 				res.DateFrom = moment(globalDateState.dateFrom).format();
@@ -387,13 +388,21 @@
 						ConditionModule: MODULETYPE_TO_INT[$('.dropdown-moduletype .dropdown-selected', $module).text().trim()]
 					});
 				});
+				console.log('Should send:', res);
 				request.post('http://dmz/gitmain/WebServices/SysMessageService.asmx/Save').send({sysMessage:res}).end(function() {
+					$('.wrapper').remove();
+					$('.close-window').removeClass('hidden');
 					console.log(arguments);
 				});
 			};
 		</script>
 		<script type="text/javascript">
 			$(function() {
+				// Close window
+				$('.close-window').on('click', function() {
+					window.close();
+				});
+
 				// Preview
 				$('.buttons .test').on('click', function() {
 					$('#preview .title').text($('input.title').val());
