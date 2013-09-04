@@ -72,8 +72,12 @@
 			.buttons {
 				margin-top: 30px;
 			}
-			.buttons .test {
+			.buttons .test,
+			.buttons .priority {
 				margin-right: 10px;
+			}
+			.buttons .priority {
+				width: 70px;
 			}
 			#preview .modal-dialog {
 				margin-top: 20%;
@@ -241,11 +245,13 @@
 					<ul class="dropdown-menu" role="menu">
 						<li><a href="#" name="modules">Modules</a></li>
 						<li><a href="#" name="journalentries">Journal entries</a></li>
-						<li><a href="#" name="sentinvoices">Sent invoices</a></li>
+						<!-- <li><a href="#" name="sentinvoices">Sent invoices</a></li> -->
 					</ul>
 				</div>
 
 				<div class="buttons">
+					<h3>Priority</h3>
+					<input class="form-control priority left">
 					<button type="button" class="right btn btn-default publish">Publish</button>
 					<button type="button" class="right btn btn-default test">Test page</button>
 				</div>
@@ -272,6 +278,7 @@
 
 			var FORMAT = 'MM/DD/YYYY HH:mm';
 			var ID = param('id');
+			if (ID === 'null') ID = null;
 			var USERTYPE_TO_INT = {
 				AllUsers: 1,
 				AllAdministrators: 2,
@@ -333,8 +340,10 @@
 					sysMessageId: id
 				}).end(function(body) {
 					var data = JSON.parse(body.text).d;
+					console.log(data)
 					$('input.title').val(data.Heading);
 					$('textarea.text').html(data.Message);
+					$('.priority').val(data.Priority);
 					setDateTime(data.DateFrom, data.DateTo);
 					$('.dropdown-usertype .dropdown-selected').text(INT_TO_USERTYPE[data.CustomerSegment]);
 					data.EntryCondition.forEach(function(EntryCondition) {
@@ -349,29 +358,35 @@
 						$('.dropdown-moduletype', $html).text(INT_TO_MODULETYPE[ModuleCondition.ConditionModule])
 						$('.conditions').append($html);
 					});
-					setTimeout(function() {
-						saveUser(id);
-					}, 100);
 				});
 			};
 			var saveUser = function(id) {
 				var res = {};
+				res.__type = 'Economic.FormService.DTO.SysMessageSegmentedDto';
 				res.ID = id;
 				res.Heading = $('input.title').val();
 				res.Message = $('textarea.text').val();
 				res.DateFrom = moment(globalDateState.dateFrom).format();
 				res.DateTo = moment(globalDateState.dateTo).format();
 				res.CustomerSegment = USERTYPE_TO_INT[$('.dropdown-usertype .dropdown-selected').text()];
+				res.Priority = $('.priority').val() || 10000;
 
-				res.EntryCondition = [];
-				res.ModuleCondition = [];
 				$('.condition-journalentries').each(function(_, entry) {
 					var $entry = $(entry);
-					$('.dropdown-selector', $entry)
-					// console.log(entry);
+					res.EntryCondition = res.EntryCondition || [];
+					res.EntryCondition.push({
+						MoreThan: $('.dropdown-selected', $entry).text().trim() === 'more than',
+						ConditionAmount: $('input', $entry).val()
+					});
 				});
-				res.Priority = 1001;
-				res.__type = 'Economic.FormService.DTO.SysMessageSegmentedDto';
+				$('.condition-module').each(function(_, module) {
+					var $module = $(module);
+					res.ModuleCondition = res.ModuleCondition || [];
+					res.ModuleCondition.push({
+						With: $('.dropdown-with .dropdown-selected', $module).text() === 'with',
+						ConditionModule: MODULETYPE_TO_INT[$('.dropdown-moduletype .dropdown-selected', $module).text().trim()]
+					});
+				});
 				request.post('http://dmz/gitmain/WebServices/SysMessageService.asmx/Save').send({sysMessage:res}).end(function() {
 					console.log(arguments);
 				});
@@ -384,6 +399,11 @@
 					$('#preview .title').text($('input.title').val());
 					$('#preview .text').html($('textarea.text').val().replace(/\n/g, '<br>'));
 					$('#preview').modal();
+				});
+
+				// Publish
+				$('.buttons .publish').on('click', function() {
+					saveUser(ID);
 				});
 
 				// Add condition dropdown
@@ -402,7 +422,7 @@
 					$('.dropdown-selected', $(this).closest('.dropdown-selector')).text($(this).text());
 				});
 
-				if (ID && ID !== 'null') return loadUser(ID);
+				if (ID) return loadUser(ID);
 
 				// Date range selector
 				setDateTime(moment().minutes(0), moment().add('days', 7).minutes(0));
